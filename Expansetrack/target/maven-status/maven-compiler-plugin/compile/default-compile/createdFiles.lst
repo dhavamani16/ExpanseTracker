@@ -1,0 +1,7 @@
+com\expanse\gui\ExpanseGUI.class
+com\expanse\dao\Categorical.class
+com\expanse\model\Expanse.class
+com\expanse\util\DatabaseConnection.class
+com\expanse\gui\Categorical.class
+com\expanse\dao\ExpanseDAO.class
+com\expanse\Main.class
