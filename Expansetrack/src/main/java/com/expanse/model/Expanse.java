@@ -3,60 +3,35 @@ package com.expanse.model;
 import java.time.LocalDateTime;
 
 public class Expanse {
-    private int eid;
-    private int cid;
-     private LocalDateTime date;
-    private int amt;
-    public Expanse(int eid, int cid, LocalDateTime date, double amount) {
-        this.eid = eid;
-        this.cid = cid;
+    private int id;
+    private int categoryId;
+    private double amount;
+    private LocalDateTime date;
+    private String description;
+    
+    public Expanse(int categoryId, double amount, LocalDateTime date, String description) {
+        this.categoryId = categoryId;
+        this.amount = amount;
         this.date = date;
-        this.amt = amt;
+        this.description = description;
     }
-    public Expanse(int categoryId, String date2, double amount) {
-        
-    }
-    public int getEid() {
-        return eid;
-    }
-
-    public void setEid(int eid) {
-        this.eid = eid;
-    }
-
-    public int getCid() {
-        return cid;
-    }
-
-    public void setCid(int cid) {
-        this.cid = cid;
-    }
-
-    public LocalDateTime getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDateTime date) {
+    
+    public Expanse(int id, int categoryId, double amount, LocalDateTime date, String description) {
+        this.id = id;
+        this.categoryId = categoryId;
+        this.amount = amount;
         this.date = date;
+        this.description = description;
     }
 
-    public int getAmt() {
-        return amt;
-    }
-
-    public void setAmt(double amount) {
-        this.amt = amt;
-    }
-    public void setCategoryId(int categoryId) {
-  
-        throw new UnsupportedOperationException("Unimplemented method 'setCategoryId'");
-    }
-    public void setDate(String date2) {
-       
-        throw new UnsupportedOperationException("Unimplemented method 'setDate'");
-    }
-    public Object getCategoryId() {
-       
-        throw new UnsupportedOperationException("Unimplemented method 'getCategoryId'");
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
+    public int getCategoryId() { return categoryId; }
+    public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
+    public double getAmount() { return amount; }
+    public void setAmount(double amount) { this.amount = amount; }
+    public LocalDateTime getDate() { return date; }
+    public void setDate(LocalDateTime date) { this.date = date; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 }
