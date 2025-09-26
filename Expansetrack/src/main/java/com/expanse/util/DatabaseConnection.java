@@ -1,13 +1,13 @@
 package com.expanse.util;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+
 public class DatabaseConnection {
-    public static final String URL="jdbc:mysql://localhost:3306/extracker";
-    public static final String USER="root";
-    public static final String PASSWORD="Dhavamani@123";
+     public static final String URL = "jdbc:mysql://localhost:3306/tododb";
+    public static final String USERNAME = "root";
+    public static final String PASSWORD = "Dhavamani@123"; 
     static {
         try{
         Class.forName("com.mysql.cj.jdbc.Driver");
@@ -16,7 +16,7 @@ public class DatabaseConnection {
         }
     }
     public static Connection getDBConnection() throws SQLException{
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+        return DriverManager.getConnection(URL, USERNAME, PASSWORD);
     }
-    
+
 }

@@ -7,11 +7,14 @@ public class Expanse {
     private int cid;
      private LocalDateTime date;
     private int amt;
-    public Expanse(int eid, int cid, LocalDateTime date, int amt) {
+    public Expanse(int eid, int cid, LocalDateTime date, double amount) {
         this.eid = eid;
         this.cid = cid;
         this.date = date;
         this.amt = amt;
+    }
+    public Expanse(int categoryId, String date2, double amount) {
+        
     }
     public int getEid() {
         return eid;
@@ -41,7 +44,19 @@ public class Expanse {
         return amt;
     }
 
-    public void setAmt(int amt) {
+    public void setAmt(double amount) {
         this.amt = amt;
+    }
+    public void setCategoryId(int categoryId) {
+  
+        throw new UnsupportedOperationException("Unimplemented method 'setCategoryId'");
+    }
+    public void setDate(String date2) {
+       
+        throw new UnsupportedOperationException("Unimplemented method 'setDate'");
+    }
+    public Object getCategoryId() {
+       
+        throw new UnsupportedOperationException("Unimplemented method 'getCategoryId'");
     }
 }

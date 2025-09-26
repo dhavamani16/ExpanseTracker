@@ -6,9 +6,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import com.expanse.util.DatabaseConnection;
 import com.expanse.gui.ExpanseGUI;
 import com.expanse.model.Expanse;
+import com.expanse.util.DatabaseConnection;
 public class Main{
     public static void main(String[] args) {
         
