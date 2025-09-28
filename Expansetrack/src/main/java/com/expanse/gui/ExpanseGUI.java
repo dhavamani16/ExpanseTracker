@@ -1,32 +1,28 @@
 package com.expanse.gui;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import com.expanse.dao.ExpanseDAO;
 import com.expanse.model.Expanse;
-import java.util.List;
+import com.expanse.dao.CategoryDAO;
 
+import java.util.List;
 import java.awt.*;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
 public class ExpanseGUI extends JFrame {
-    private ExpanseDAO expanseDAO = new ExpanseDAO();
-
+    private ExpanseDAO expanseDAO;
     private JTable expanseTable;
     private DefaultTableModel expansetableModel;
-    private JTextField titleField;
-    private JTextArea descriptionArea;
-    private JCheckBox completedCheckBox;
-    private JButton addButton;
-    private JButton deleteButton;
-    private JButton updateButton;
-    private JButton refreshButton;
-    private JComboBox<String> filterComboBox;
     private CardLayout cardLayout;
     private JPanel mainPanel;
+    private JTable categoryTable;
+    private DefaultTableModel categoryTableModel;
+    private JButton addCategoryButton, editCategoryButton, deleteCategoryButton,back;
+    private JButton addExpanseButton, editExpanseButton, deleteExpanseButton;
 
-    private JTable table;
 
     public ExpanseGUI() {
         this.expanseDAO = new ExpanseDAO();
@@ -35,9 +31,11 @@ public class ExpanseGUI extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
+
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
 
+        // HOME PANEL 
         JPanel homePanel = new JPanel();
         homePanel.setLayout(new BoxLayout(homePanel, BoxLayout.Y_AXIS));
 
@@ -56,17 +54,32 @@ public class ExpanseGUI extends JFrame {
         categoryButton.setFont(new Font("Arial", Font.BOLD, 20));
         expanseButton.setFont(new Font("Arial", Font.BOLD, 20));
 
-        
-
-
+        //  CATEGORY PANEL 
         JPanel categoryPanel = new JPanel(new BorderLayout());
-        table = new JTable();
-        categoryPanel.add(new JScrollPane(table), BorderLayout.CENTER);
+        categoryTable = new JTable();
+        categoryPanel.add(new JScrollPane(categoryTable), BorderLayout.CENTER);
         JButton back1 = new JButton("Back");
         categoryPanel.add(back1, BorderLayout.SOUTH);
 
+        JPanel categoryButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JButton editCategory = new JButton("Edit Category");
+        JButton deleteCategory = new JButton("Delete Category");
+        JButton back = new JButton("Back"); // your existing back button
+        JButton addCategory = new JButton("Add Category");
+
+        categoryButtonPanel.add(addCategory);
+        categoryButtonPanel.add(editCategory);
+        categoryButtonPanel.add(deleteCategory);
+        categoryButtonPanel.add(back1);
+
+        categoryPanel.add(categoryButtonPanel, BorderLayout.SOUTH);
+
+
+        // EXPANSE PANEL 
         JPanel expansePanel = new JPanel(new BorderLayout());
-        JTable expanseTable = new JTable();
+        String[] columnNames = {"Expanse ID", "Category ID", "Date", "Amount", "Description"};
+        expansetableModel = new DefaultTableModel(columnNames, 0);
+        expanseTable = new JTable(expansetableModel);
         expansePanel.add(new JScrollPane(expanseTable), BorderLayout.CENTER);
 
         JPanel expanseButtonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -82,180 +95,219 @@ public class ExpanseGUI extends JFrame {
 
         expansePanel.add(expanseButtonPanel, BorderLayout.SOUTH);
 
+        // ADD TO MAIN PANEL 
         mainPanel.add(homePanel, "HOME");
         mainPanel.add(categoryPanel, "CATEGORIES");
         mainPanel.add(expansePanel, "EXPANSES");
 
         add(mainPanel);
 
+        //  ACTION LISTENERS
         categoryButton.addActionListener(e -> {
             showCategories();
             cardLayout.show(mainPanel, "CATEGORIES");
         });
 
         expanseButton.addActionListener(e -> {
-            showExpanses(expanseTable);
+            loadExpanses();
             cardLayout.show(mainPanel, "EXPANSES");
         });
+        
 
         back1.addActionListener(e -> cardLayout.show(mainPanel, "HOME"));
         back2.addActionListener(e -> cardLayout.show(mainPanel, "HOME"));
 
-        // Extra: action buttons in Expanses page
-        addExpanse.addActionListener(e -> addExpanse(new Object[] {0, 1, LocalDateTime.now().toString().substring(0, 19), 0.0, "New Expanse"}));
-        editExpanse.addActionListener(e -> editExpanseExpanse());
+        addExpanse.addActionListener(e -> openAddExpanseDialog());
+        editExpanse.addActionListener(e -> openEditExpanseDialog());
         deleteExpanse.addActionListener(e -> deleteExpanse());
+
+        addCategory.addActionListener(e -> {
+        String name = JOptionPane.showInputDialog(this, "Enter category name:");
+        if (name != null && !name.trim().isEmpty()) {
+            try {
+                CategoryDAO categoryDAO = null;
+                categoryDAO.createCategory(name.trim());
+                showCategories(); 
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error adding category: " + ex.getMessage());
+            }
+        }
+    });
+    addCategory.addActionListener(e -> {
+    String name = JOptionPane.showInputDialog(this, "Enter category name:");
+    if (name != null && !name.trim().isEmpty()) {
+        try {
+            CategoryDAO categoryDAO = null;
+            categoryDAO.createCategory(name.trim());
+            loadCategories(); // refresh table
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error adding category: " + ex.getMessage());
+        }
+    }
+    });
+
+
 
         setVisible(true);
     }
 
-    private Object editExpanseExpanse() {
+    private void loadCategories() {
         // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'editExpanseExpanse'");
+        throw new UnsupportedOperationException("Unimplemented method 'loadCategories'");
     }
 
+    // CATEGORY DISPLAY 
     private void showCategories() {
-        try {
-            String[] columnNames = {"Category ID", "Category Name"};
-            Object[][] data = {
+        String[] columnNames = {"Category ID", "Category Name"};
+        Object[][] data = {
                 {1, "Food"},
                 {2, "Transport"},
                 {3, "Utilities"}
-            };
-            DefaultTableModel model = new DefaultTableModel(data, columnNames);
-            table.setModel(model);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error loading categories: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        };
+        DefaultTableModel model = new DefaultTableModel(data, columnNames);
+        categoryTable.setModel(model);
     }
 
-    private void showExpanses(JTable expanseTable) {
-        try {
-            String[] columnNames = {"Expanse ID", "Category ID", "Date", "Amount"};
-            Object[][] data = {
-                {1, 1, "2023-10-01 12:00", 50},
-                {2, 2, "2023-10-02 15:30", 20},
-                {3, 3, "2023-10-03 09:45", 100}
-            };
-            DefaultTableModel model = new DefaultTableModel(data, columnNames);
-            expanseTable.setModel(model);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error loading expanses: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-    private void addExpanse(Object[] data) {
-    int categoryId = (int) data[1];
-    double amount = (double) data[3];
-    LocalDateTime date = LocalDateTime.parse((String) data[2]);
-    String description = (String) data[4];
+    //  EXPANSE ADD 
+    private void openAddExpanseDialog() {
+        JTextField categoryField = new JTextField();
+        JTextField amountField = new JTextField();
+        JTextField descriptionField = new JTextField();
+        JTextField dateField = new JTextField(LocalDateTime.now().toString().substring(0, 19));
 
-    if (description.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Description cannot be empty", "Validation Error", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Category ID:"));
+        panel.add(categoryField);
+        panel.add(new JLabel("Amount:"));
+        panel.add(amountField);
+        panel.add(new JLabel("Description:"));
+        panel.add(descriptionField);
+        panel.add(new JLabel("Date (YYYY-MM-DDTHH:MM:SS):"));
+        panel.add(dateField);
 
-    try {
-        Expanse expanse = new Expanse(categoryId, amount, date, description);
-        
-        expanseDAO.createExpanse(expanse);
+        int result = JOptionPane.showConfirmDialog(
+                this, panel, "Add Expanse", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-        JOptionPane.showMessageDialog(this, "Expanse added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-        loadExpanses();
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error adding expanse: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
-}
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                int categoryId = Integer.parseInt(categoryField.getText());
+                double amount = Double.parseDouble(amountField.getText());
+                String description = descriptionField.getText();
+                LocalDateTime date = LocalDateTime.parse(dateField.getText());
 
-private void editExpanse(Object[] data) {
-    int selectedRow = expanseTable.getSelectedRow();
-    if (selectedRow < 0) {
-        JOptionPane.showMessageDialog(this, "Please select an expanse to update", "No Selection", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
+                Expanse expanse = new Expanse(categoryId, amount, date, description);
+                int newId = expanseDAO.createExpanse(expanse);
 
-    int id = (int) expansetableModel.getValueAt(selectedRow, 0); 
-    
-    int categoryId = (int) data[1];
-    double amount = (double) data[3];
-    LocalDateTime date = LocalDateTime.parse((String) data[2]);
-    String description = (String) data[4];
-
-    if (description.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Description cannot be empty", "Validation Error", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    try {
-        Expanse expanse = expanseDAO.getExpanseByID(id); 
-        
-        if (expanse != null) {
-            expanse.setCategoryId(categoryId);
-            expanse.setAmount(amount);
-            expanse.setDate(date);
-            expanse.setDescription(description);
-
-            if (expanseDAO.updateExpanse(expanse)) {
-                JOptionPane.showMessageDialog(this, "Expanse updated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Expanse added successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
                 loadExpanses();
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to update expanse", "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Invalid input: " + ex.getMessage(),
+                        "Input Error", JOptionPane.ERROR_MESSAGE);
             }
-        } else {
-            JOptionPane.showMessageDialog(this, "Selected expanse not found in database", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error updating expanse: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-    }
-}
-
-private void deleteExpanse() {
-    int row = expanseTable.getSelectedRow();
-    if (row < 0) {
-        JOptionPane.showMessageDialog(this, "Please select an expanse to delete", "No Selection", JOptionPane.WARNING_MESSAGE);
-        return;
     }
 
-    int expanseId = (int) expansetableModel.getValueAt(row, 0);
-    int confirm = JOptionPane.showConfirmDialog(this, 
-        "Are you sure you want to delete Expanse ID " + expanseId + "?", 
-        "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+    // EXPANSE EDIT 
+    private void openEditExpanseDialog() {
+        int selectedRow = expanseTable.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(this, "Please select an expanse to update", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-    if (confirm == JOptionPane.YES_OPTION) {
+        int id = (int) expansetableModel.getValueAt(selectedRow, 0);
+        int categoryId = (int) expansetableModel.getValueAt(selectedRow, 1);
+        String dateStr = (String) expansetableModel.getValueAt(selectedRow, 2);
+        double amount = (double) expansetableModel.getValueAt(selectedRow, 3);
+        String description = (String) expansetableModel.getValueAt(selectedRow, 4);
+
+        JTextField categoryField = new JTextField(String.valueOf(categoryId));
+        JTextField amountField = new JTextField(String.valueOf(amount));
+        JTextField descriptionField = new JTextField(description);
+        JTextField dateField = new JTextField(dateStr);
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Category ID:"));
+        panel.add(categoryField);
+        panel.add(new JLabel("Amount:"));
+        panel.add(amountField);
+        panel.add(new JLabel("Description:"));
+        panel.add(descriptionField);
+        panel.add(new JLabel("Date (YYYY-MM-DDTHH:MM:SS):"));
+        panel.add(dateField);
+
+        int result = JOptionPane.showConfirmDialog(
+                this, panel, "Edit Expanse", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                int newCategoryId = Integer.parseInt(categoryField.getText());
+                double newAmount = Double.parseDouble(amountField.getText());
+                String newDescription = descriptionField.getText();
+                LocalDateTime newDate = LocalDateTime.parse(dateField.getText());
+
+                Expanse expanse = new Expanse(id, newCategoryId, newAmount, newDate, newDescription);
+                if (expanseDAO.updateExpanse(expanse)) {
+                    JOptionPane.showMessageDialog(this, "Expanse updated successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    loadExpanses();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to update expanse", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Invalid input: " + ex.getMessage(),
+                        "Input Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    // EXPANSE DELETE 
+    private void deleteExpanse() {
+        int row = expanseTable.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Please select an expanse to delete", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int expanseId = (int) expansetableModel.getValueAt(row, 0);
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to delete Expanse ID " + expanseId + "?",
+                "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                if (expanseDAO.deleteExpanse(expanseId)) {
+                    JOptionPane.showMessageDialog(this, "Expanse deleted successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
+                    loadExpanses();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Failed to delete expanse", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error deleting expanse: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    //  LOAD EXPANSES FROM DB 
+    private void loadExpanses() {
+        expansetableModel.setRowCount(0);
         try {
-            if (expanseDAO.deleteExpanse(expanseId)) {
-                JOptionPane.showMessageDialog(this, "Expanse deleted successfully", "Success", JOptionPane.INFORMATION_MESSAGE);
-                loadExpanses();
-            } else {
-                JOptionPane.showMessageDialog(this, "Failed to delete expanse", "Error", JOptionPane.ERROR_MESSAGE);
+            List<Expanse> expanses = expanseDAO.getAllExpanses();
+            for (Expanse exp : expanses) {
+                Object[] row = new Object[]{
+                        exp.getId(),
+                        exp.getCategoryId(),
+                        exp.getDate().toString().substring(0, 19),
+                        exp.getAmount(),
+                        exp.getDescription()
+                };
+                expansetableModel.addRow(row);
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error deleting expanse: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error loading expanses: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-}
 
-private void loadExpanses() {
-    expansetableModel.setRowCount(0);
-
-    try {
-        List<Expanse> expanses = expanseDAO.getAllExpanses();
-        
-        for (Expanse exp : expanses) {
-            Object[] row = new Object[] {
-                exp.getId(),
-                exp.getCategoryId(),
-                exp.getDate().toString().substring(0, 19),
-                exp.getAmount(),
-                exp.getDescription()
-            };
-            expansetableModel.addRow(row);
-        }
-    } catch (SQLException e) {
-        JOptionPane.showMessageDialog(this, "Error loading expanses: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
-    }
-}
+    // MAIN 
     public static void main(String[] args) {
         new ExpanseGUI();
     }
