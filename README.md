@@ -38,7 +38,7 @@ ExpanseTracker/
 
 ---
 
-## ⚙️ Installation & Setup
+## Installation & Setup
 
 1. Clone the repository
 
@@ -62,7 +62,7 @@ ExpanseTracker/
 
 ---
 
-## 🎯 Usage
+##  Usage
 
 * Enter your expense details
 * Select a category
@@ -71,7 +71,7 @@ ExpanseTracker/
 
 ---
 
-## 🔮 Future Enhancements
+##  Future Enhancements
 
 * User authentication
 * Monthly and yearly expense reports
@@ -81,7 +81,7 @@ ExpanseTracker/
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome!
 
@@ -95,7 +95,7 @@ Contributions are welcome!
 
 
 
-## 👤 Author
+##  Author
 
 **Dhavamani A**
 GitHub: [@dhavamani16](https://github.com/dhavamani16)
